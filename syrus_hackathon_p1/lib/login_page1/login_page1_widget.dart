@@ -214,7 +214,12 @@ class _LoginPage1WidgetState extends State<LoginPage1Widget> {
                                               24.0, 24.0, 0.0, 24.0),
                                     ),
                                     style: FlutterFlowTheme.of(context)
-                                        .titleMedium,
+                                        .titleMedium
+                                        .override(
+                                          fontFamily: 'Inter',
+                                          color: FlutterFlowTheme.of(context)
+                                              .primaryText,
+                                        ),
                                     keyboardType: TextInputType.emailAddress,
                                     validator: _model
                                         .emailAddressControllerValidator
@@ -308,7 +313,12 @@ class _LoginPage1WidgetState extends State<LoginPage1Widget> {
                                       ),
                                     ),
                                     style: FlutterFlowTheme.of(context)
-                                        .titleMedium,
+                                        .titleMedium
+                                        .override(
+                                          fontFamily: 'Inter',
+                                          color: FlutterFlowTheme.of(context)
+                                              .primaryText,
+                                        ),
                                     validator: _model
                                         .passwordControllerValidator
                                         .asValidator(context),
