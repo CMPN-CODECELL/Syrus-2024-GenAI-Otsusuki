@@ -142,6 +142,34 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => params.isEmpty
               ? NavBarPage(initialPage: 'AddPatient')
               : AddPatientWidget(),
+        ),
+        FFRoute(
+          name: 'SinglePatientInDetail',
+          path: '/singlePatientInDetail',
+          asyncParams: {
+            'patientInfo':
+                getDoc(['patientsInfo'], PatientsInfoRecord.fromSnapshot),
+          },
+          builder: (context, params) => SinglePatientInDetailWidget(
+            patientInfo: params.getParam('patientInfo', ParamType.Document),
+          ),
+        ),
+        FFRoute(
+          name: 'NewXrayUploads',
+          path: '/newXrayUploads',
+          asyncParams: {
+            'patientReference':
+                getDoc(['patientsInfo'], PatientsInfoRecord.fromSnapshot),
+          },
+          builder: (context, params) => NewXrayUploadsWidget(
+            patientReference:
+                params.getParam('patientReference', ParamType.Document),
+          ),
+        ),
+        FFRoute(
+          name: 'ReportHistory',
+          path: '/reportHistory',
+          builder: (context, params) => ReportHistoryWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

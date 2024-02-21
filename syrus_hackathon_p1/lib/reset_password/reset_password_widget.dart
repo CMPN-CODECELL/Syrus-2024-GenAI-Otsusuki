@@ -27,7 +27,11 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
     super.initState();
     _model = createModel(context, () => ResetPasswordModel());
 
-    _model.emailAddressController ??= TextEditingController();
+    _model.emailAddressController ??= TextEditingController(
+        text: valueOrDefault<String>(
+      currentUserEmail,
+      '2020.digvijay.kocharekar@ves.ac.in',
+    ));
     _model.emailAddressFocusNode ??= FocusNode();
   }
 
@@ -216,6 +220,8 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
                         email: _model.emailAddressController.text,
                         context: context,
                       );
+
+                      context.pushNamed('SettingsPage');
                     },
                     text: 'Send Link',
                     options: FFButtonOptions(

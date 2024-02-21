@@ -1,9 +1,12 @@
+import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/form_field_controller.dart';
 import 'add_patient_widget.dart' show AddPatientWidget;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -17,6 +20,14 @@ class AddPatientModel extends FlutterFlowModel<AddPatientWidget> {
   FocusNode? patientNameFocusNode;
   TextEditingController? patientNameController;
   String? Function(BuildContext, String?)? patientNameControllerValidator;
+  // State field(s) for PatientEmail widget.
+  FocusNode? patientEmailFocusNode;
+  TextEditingController? patientEmailController;
+  String? Function(BuildContext, String?)? patientEmailControllerValidator;
+  // State field(s) for PatientPhone widget.
+  FocusNode? patientPhoneFocusNode;
+  TextEditingController? patientPhoneController;
+  String? Function(BuildContext, String?)? patientPhoneControllerValidator;
   // State field(s) for PatientAge widget.
   FocusNode? patientAgeFocusNode;
   TextEditingController? patientAgeController;
@@ -32,6 +43,11 @@ class AddPatientModel extends FlutterFlowModel<AddPatientWidget> {
   // State field(s) for DropDown widget.
   String? dropDownValue;
   FormFieldController<String>? dropDownValueController;
+  // State field(s) for PatientDescription widget.
+  FocusNode? patientDescriptionFocusNode;
+  TextEditingController? patientDescriptionController;
+  String? Function(BuildContext, String?)?
+      patientDescriptionControllerValidator;
 
   /// Initialization and disposal methods.
 
@@ -43,6 +59,12 @@ class AddPatientModel extends FlutterFlowModel<AddPatientWidget> {
     patientNameFocusNode?.dispose();
     patientNameController?.dispose();
 
+    patientEmailFocusNode?.dispose();
+    patientEmailController?.dispose();
+
+    patientPhoneFocusNode?.dispose();
+    patientPhoneController?.dispose();
+
     patientAgeFocusNode?.dispose();
     patientAgeController?.dispose();
 
@@ -51,6 +73,9 @@ class AddPatientModel extends FlutterFlowModel<AddPatientWidget> {
 
     patientWeightFocusNode?.dispose();
     patientWeightController?.dispose();
+
+    patientDescriptionFocusNode?.dispose();
+    patientDescriptionController?.dispose();
   }
 
   /// Action blocks are added here.
