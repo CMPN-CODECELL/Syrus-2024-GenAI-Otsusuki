@@ -30,18 +30,7 @@ data = pd.read_csv('data.csv')
 train_features=np.load("train_image_features.npy")
 test_features=np.load("test_image_features.npy")  
 
-'''
-Obtaining the image feature for every patient using the final chexnet model which we had build earlier.
-Here we pass two images. Now we predict the 7,7,1024 dimensional vector for each image from the final chexnet model.
-Now we need to concatenate these features. Here we conatenate these features along the width and then we will get a 7,14,1024 dimensional vector after 
-cocatenation. Now to perform the attention mechansm we convert this into (7x14),1024 i.e, 96,1024 dimensional tensor. So there will be 96 regions 
-in the image with a depth of 1024.
-'''
-'''
-First we need to load the chexnet nodel (DenseNet121),
-The trained weight of this model is from https://github.com/brucechou1983/CheXNet-Keras
 
-'''
 #https://github.com/antoniosehk/tCheXNet/blob/master/chexnet.py
 from tensorflow.keras.applications import DenseNet121
 
@@ -56,40 +45,42 @@ chexnet_model.load_weights("chexnet.h5")
 
 # chexnet_model.summary()
 final_chexnet_model=Model(inputs=chexnet_model.inputs,outputs=chexnet_model.layers[-2].output,name="Chexnet_model")    
-def image_feature_extraction(image1,image2):
-  
- 
-  image_1 = Image.open(image1)
-  
-  image_1= np.asarray(image_1.convert("RGB"))
-  
-  
-  image_2=Image.open(image2)
-  image_2 = np.asarray(image_2.convert("RGB"))
+def image_feature_extraction(image1, image2):
+    image_1 = Image.open(image1)
+    image_1 = np.asarray(image_1.convert("RGB"))
 
-    #normalize the values of the image
-  image_1=image_1/255
-  image_2=image_2/255
+    image_2 = Image.open(image2)
+    image_2 = np.asarray(image_2.convert("RGB"))
 
-    #resize all image into (224,224)
-  image_1 = cv2.resize(image_1,(224,224))
-  image_2 = cv2.resize(image_2,(224,224))
-    
-  image_1= np.expand_dims(image_1, axis=0)
-  image_2= np.expand_dims(image_2, axis=0)
-    
-    #now we have read two image per patient. this is goven to the chexnet model for feature extraction
-    
-  image_1_out=final_chexnet_model(image_1)
-  image_2_out=final_chexnet_model(image_2)
-  #conactenate along the width
-  conc=np.concatenate((image_1_out,image_2_out),axis=2)
-  #reshape into(no.of images passed, length*breadth, depth)
-  image_feature=tf.reshape(conc, (conc.shape[0], -1, conc.shape[-1]))
-  
+    # normalize the values of the image
+    image_1 = image_1 / 255
+    image_2 = image_2 / 255
 
-  
-  return image_feature
+    # resize all image into (224, 224)
+    image_1 = cv2.resize(image_1, (224, 224))
+    image_2 = cv2.resize(image_2, (224, 224))
+
+    image_1 = np.expand_dims(image_1, axis=0)
+    image_2 = np.expand_dims(image_2, axis=0)
+
+    # now we have read two images per patient. These are given to the chexnet model for feature extraction
+    image_1_out = final_chexnet_model(image_1)
+    image_2_out = final_chexnet_model(image_2)
+
+    # concatenate along the width
+    conc = np.concatenate((image_1_out, image_2_out), axis=2)
+
+    # reshape into (no. of images passed, length * breadth * depth)
+    image_feature = tf.reshape(conc, (conc.shape[0], -1, conc.shape[-1]))
+    
+
+
+    # reshape for attention mechanism
+    # image_feature_reshaped = tf.reshape(image_feature, (image_feature.shape[0], -1, image_feature.shape[-1]))
+    image_feature_reshaped = tf.reshape(image_feature, (image_feature.shape[0], -1, 2048))
+
+    return image_feature_reshaped
+
 k=190
 print(test_features[k])
 one=data.iloc[k]["image1"] 
@@ -167,6 +158,7 @@ dec_units=64
 att_units=64
 
 input_img=Input(shape=(98,1024),name="image_fetaures")
+# input_img=Input(shape=(None,1,1024),name="image_fetaures")
 input_txt=Input(shape=(max_len),name="text_input")
 
 #encoder model
@@ -202,14 +194,17 @@ class Encoder(tf.keras.Model):
     
   
   def build(self,input_shape):
-    self.dense1=Dense(self.units,activation="relu",name="encoder_dense")
+    # self.dense1=Dense(self.units,activation="relu",name="encoder_dense")
+    self.dense1=Dense(2048,activation="relu",name="encoder_dense")
     self.maxpool=tf.keras.layers.Dropout(0.5)
 
-  def call(self,input_):
-    enc_out=self.maxpool(input_)
-    enc_out=self.dense1(enc_out) 
-    
-    return enc_out
+  def call(self, input_):
+        try:
+            enc_out = self.maxpool(input_)
+            enc_out = self.dense1(enc_out)
+            return enc_out
+        except Exception as e:
+            raise ValueError(f"Error in Encoder layer with input shape {input_.shape}: {str(e)}")
     
   def initialize_states(self,batch_size):
       '''
@@ -315,7 +310,6 @@ class One_Step_Decoder(tf.keras.Model):
     
     return dense_op,forward_h,back_h,alpha
 
-
 '''
 For every input sentence, each output word is generated using one step decoder. Each output word is stored using the final decoder model and the
 final output sentence is returned
@@ -348,6 +342,7 @@ class Decoder(tf.keras.Model):
         all_outputs=tf.transpose(all_outputs.stack(),[1,0,2])
         
         return all_outputs
+    
     
 
 warnings.filterwarnings("ignore")
@@ -409,8 +404,13 @@ model.compile(optimizer=optimizer,loss=custom_lossfunction)
 # red_lr=tf.keras.callbacks.ReduceLROnPlateau(monitor="val_loss",factor=0.2,patience=2, min_lr=0.0001) 
 # ckpt=tf.keras.callbacks.ModelCheckpoint("model2wts/ckpt",monitor='val_loss', verbose=0, save_best_only=True,save_weights_only=False, mode='auto')
 red_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor="val_loss", factor=0.1, patience=3, min_lr=0.00001)
-ckpt = tf.keras.callbacks.ModelCheckpoint("model2wts/ckpt", monitor='val_loss', verbose=1, save_best_only=True, save_weights_only=False, mode='auto')
+ckpt = tf.keras.callbacks.ModelCheckpoint("model2wts_25/ckpt", monitor='val_loss', verbose=1, save_best_only=True, save_weights_only=False, mode='auto')
 
 #run this cell 
 model.fit([train_features[:3050],train_padded_inp[:3050]],train_padded_out[:3050],validation_data=([test_features[:760],test_padded_inp[:760]],test_padded_out[:760]),
-          batch_size=bs,epochs=15,callbacks=[red_lr,ckpt]) 
+          batch_size=bs,epochs=25,callbacks=[red_lr,ckpt]) 
+
+# Save only the weights in HDF5 format
+# model.save("model2wts/ckpt/best_model.h5")
+model.save("model2wts/ckpt/best_model", save_format="tf")
+
