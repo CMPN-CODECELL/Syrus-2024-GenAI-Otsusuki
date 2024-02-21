@@ -1,8 +1,11 @@
+import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/form_field_controller.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -31,6 +34,12 @@ class _AddPatientWidgetState extends State<AddPatientWidget> {
     _model.patientNameController ??= TextEditingController();
     _model.patientNameFocusNode ??= FocusNode();
 
+    _model.patientEmailController ??= TextEditingController();
+    _model.patientEmailFocusNode ??= FocusNode();
+
+    _model.patientPhoneController ??= TextEditingController();
+    _model.patientPhoneFocusNode ??= FocusNode();
+
     _model.patientAgeController ??= TextEditingController();
     _model.patientAgeFocusNode ??= FocusNode();
 
@@ -39,6 +48,9 @@ class _AddPatientWidgetState extends State<AddPatientWidget> {
 
     _model.patientWeightController ??= TextEditingController();
     _model.patientWeightFocusNode ??= FocusNode();
+
+    _model.patientDescriptionController ??= TextEditingController();
+    _model.patientDescriptionFocusNode ??= FocusNode();
   }
 
   @override
@@ -76,18 +88,13 @@ class _AddPatientWidgetState extends State<AddPatientWidget> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding:
-                        EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 0.0, 0.0),
-                    child: Text(
-                      'Add Patient',
-                      style:
-                          FlutterFlowTheme.of(context).headlineMedium.override(
-                                fontFamily: 'Readex Pro',
-                                color: FlutterFlowTheme.of(context).primaryText,
-                                fontSize: 22.0,
-                              ),
-                    ),
+                  Text(
+                    'Add New Patient',
+                    style: FlutterFlowTheme.of(context).headlineMedium.override(
+                          fontFamily: 'Readex Pro',
+                          color: FlutterFlowTheme.of(context).primaryText,
+                          fontSize: 22.0,
+                        ),
                   ),
                 ],
               ),
@@ -150,6 +157,104 @@ class _AddPatientWidgetState extends State<AddPatientWidget> {
                   ),
                   style: FlutterFlowTheme.of(context).bodyMedium,
                   validator: _model.patientNameControllerValidator
+                      .asValidator(context),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 16.0),
+                child: TextFormField(
+                  controller: _model.patientEmailController,
+                  focusNode: _model.patientEmailFocusNode,
+                  textCapitalization: TextCapitalization.words,
+                  obscureText: false,
+                  decoration: InputDecoration(
+                    labelText: 'Patient\'s Email',
+                    labelStyle: FlutterFlowTheme.of(context).labelMedium,
+                    hintStyle: FlutterFlowTheme.of(context).labelMedium,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: FlutterFlowTheme.of(context).alternate,
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: FlutterFlowTheme.of(context).primary,
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: FlutterFlowTheme.of(context).error,
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: FlutterFlowTheme.of(context).error,
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    filled: true,
+                    fillColor: FlutterFlowTheme.of(context).secondaryBackground,
+                    contentPadding:
+                        EdgeInsetsDirectional.fromSTEB(20.0, 24.0, 0.0, 24.0),
+                  ),
+                  style: FlutterFlowTheme.of(context).bodyMedium,
+                  validator: _model.patientEmailControllerValidator
+                      .asValidator(context),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 16.0),
+                child: TextFormField(
+                  controller: _model.patientPhoneController,
+                  focusNode: _model.patientPhoneFocusNode,
+                  textCapitalization: TextCapitalization.words,
+                  obscureText: false,
+                  decoration: InputDecoration(
+                    labelText: 'Patient\'s Phone Number',
+                    labelStyle: FlutterFlowTheme.of(context).labelMedium,
+                    hintStyle: FlutterFlowTheme.of(context).labelMedium,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: FlutterFlowTheme.of(context).alternate,
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: FlutterFlowTheme.of(context).primary,
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: FlutterFlowTheme.of(context).error,
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: FlutterFlowTheme.of(context).error,
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    filled: true,
+                    fillColor: FlutterFlowTheme.of(context).secondaryBackground,
+                    contentPadding:
+                        EdgeInsetsDirectional.fromSTEB(20.0, 24.0, 0.0, 24.0),
+                  ),
+                  style: FlutterFlowTheme.of(context).bodyMedium,
+                  validator: _model.patientPhoneControllerValidator
                       .asValidator(context),
                 ),
               ),
@@ -329,13 +434,89 @@ class _AddPatientWidgetState extends State<AddPatientWidget> {
                   isMultiSelect: false,
                 ),
               ),
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 16.0),
+                child: TextFormField(
+                  controller: _model.patientDescriptionController,
+                  focusNode: _model.patientDescriptionFocusNode,
+                  textCapitalization: TextCapitalization.words,
+                  obscureText: false,
+                  decoration: InputDecoration(
+                    labelText: 'Patient\'s Description',
+                    labelStyle: FlutterFlowTheme.of(context).labelMedium,
+                    hintStyle: FlutterFlowTheme.of(context).labelMedium,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: FlutterFlowTheme.of(context).alternate,
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: FlutterFlowTheme.of(context).primary,
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: FlutterFlowTheme.of(context).error,
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: FlutterFlowTheme.of(context).error,
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    filled: true,
+                    fillColor: FlutterFlowTheme.of(context).secondaryBackground,
+                    contentPadding:
+                        EdgeInsetsDirectional.fromSTEB(20.0, 24.0, 0.0, 24.0),
+                  ),
+                  style: FlutterFlowTheme.of(context).bodyMedium,
+                  maxLines: 2,
+                  validator: _model.patientDescriptionControllerValidator
+                      .asValidator(context),
+                ),
+              ),
               Align(
                 alignment: AlignmentDirectional(0.0, 0.05),
                 child: Padding(
                   padding: EdgeInsetsDirectional.fromSTEB(0.0, 24.0, 0.0, 0.0),
                   child: FFButtonWidget(
-                    onPressed: () {
-                      print('Button pressed ...');
+                    onPressed: () async {
+                      await PatientsInfoRecord.collection
+                          .doc()
+                          .set(createPatientsInfoRecordData(
+                            patientsName: _model.patientNameController.text,
+                            patientsAge:
+                                int.tryParse(_model.patientAgeController.text),
+                            patientsHeight: _model.patientHeightController.text,
+                            patientsWeight: _model.patientWeightController.text,
+                            patientsSex: _model.dropDownValue,
+                            patientsEmail: _model.patientEmailController.text,
+                            patientsPhone: _model.patientPhoneController.text,
+                            patientDescription:
+                                _model.patientDescriptionController.text,
+                            usersReference: currentUserReference,
+                          ));
+                      setState(() {
+                        _model.patientNameController?.clear();
+                        _model.patientEmailController?.clear();
+                        _model.patientPhoneController?.clear();
+                        _model.patientAgeController?.clear();
+                        _model.patientHeightController?.clear();
+                        _model.patientWeightController?.clear();
+                        _model.patientDescriptionController?.clear();
+                      });
+                      setState(() {
+                        _model.dropDownValueController?.reset();
+                      });
                     },
                     text: 'Save Changes',
                     options: FFButtonOptions(
